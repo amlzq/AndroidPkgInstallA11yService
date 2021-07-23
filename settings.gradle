@@ -1,0 +1,2 @@
+rootProject.name='PkgInstallA11yService'
+include ':app'
