@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         TextView textView = findViewById(R.id.text_view);
-        textView.setText("Running on Android " + Build.VERSION.SDK_INT + " , manufacturer " + Build.MANUFACTURER);
+        textView.setText("Running on Android API " + Build.VERSION.SDK_INT + ", Manufacturer " + Build.MANUFACTURER);
 
         findViewById(R.id.check_a11y_service_state).setOnClickListener(new View.OnClickListener() {
             @Override
