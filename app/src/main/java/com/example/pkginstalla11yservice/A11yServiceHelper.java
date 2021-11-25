@@ -12,13 +12,13 @@ import java.util.List;
 
 public class A11yServiceHelper {
 
-    private static final A11yServiceHelper instance = new A11yServiceHelper();
+    private static final A11yServiceHelper singleton = new A11yServiceHelper();
 
     private A11yServiceHelper() {
     }
 
     public static A11yServiceHelper getInstance() {
-        return instance;
+        return singleton;
     }
 
     public boolean isEnabled(Context context, Class<? extends AccessibilityService> serviceClass) {
@@ -43,14 +43,17 @@ public class A11yServiceHelper {
         }
         for (int i = 0; i < nodeInfo.getChildCount(); i++) {
             AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
             for (String className : classNames) {
                 if (childNodeInfo.getClassName().toString().contains(className)) {
                     return childNodeInfo;
                 }
             }
-            AccessibilityNodeInfo switchOrCheckBoxNodeInfo = findNodeByClassName(childNodeInfo, classNames);
-            if (switchOrCheckBoxNodeInfo != null) {
-                return switchOrCheckBoxNodeInfo;
+            AccessibilityNodeInfo targetNodeInfo = findNodeByClassName(childNodeInfo, classNames);
+            if (targetNodeInfo != null) {
+                return targetNodeInfo;
             }
         }
         return null;
@@ -65,6 +68,9 @@ public class A11yServiceHelper {
         }
         for (int i = 0; i < nodeInfo.getChildCount(); i++) {
             AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
             String childText = childNodeInfo.getText() == null ? "" : childNodeInfo.getText().toString();
             if (!childText.isEmpty()) {
                 for (String text : texts) {

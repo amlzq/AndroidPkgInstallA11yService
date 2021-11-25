@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">PkgInstallA11yService</string>
+    <string name="app_name" translatable="false">PkgInstallA11yService</string>
+    <string name="description">In some Android custom systems (such as OriginOS, ColorOS), installing an application requires multiple steps to finally succeed. This program provides automatic completion of the intermediate steps of application installation through the accessibility service, which is quick and successful.</string>
+    <string name="password_empty">SharedPreferences get password is empty.</string>
+    <string name="password_copy_failed">Copy password to clipboard failed.</string>
+    <string name="node_not_found">%1$s Node not found.</string>
+    <string name="findService">Find %1$s and click enable.</string>
+    <string name="a11y_enable_state">Accessibility Service State %1$b.</string>
+    <string name="check_a11y_state">Check Accessibility Service State</string>
+    <string name="phone_user_pwd">phone user\'s password</string>
+    <string name="save_pwd">Save to SharedPreferences</string>
+    <string name="query_pwd">Query saved password</string>
+    <string name="env_info">Running on Android API %1$d\nManufacturer %2$s</string>
+    <string name="tips">Please keep this app running</string>
+    <string name="continue_button">"Continue installation" Button</string>
+    <string name="ok_button">"OK" Button</string>
 </resources>

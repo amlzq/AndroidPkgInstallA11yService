@@ -5,4 +5,4 @@
     android:canRetrieveWindowContent="true"
     android:description="@string/app_name"
     android:notificationTimeout="100"
-    android:packageNames="com.android.settings,com.example.pkginstalla11yservice,com.miui.securitycenter" />
+    android:packageNames="com.android.settings,com.example.pkginstalla11yservice,com.android.packageinstaller,com.miui.securitycenter,com.bbk.account,com.coloros.safecenter" />

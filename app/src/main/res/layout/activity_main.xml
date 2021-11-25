@@ -1,24 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/description" />
+
+    <TextView
+        android:id="@+id/env_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp" />
 
     <Button
         android:id="@+id/check_a11y_service_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Check Accessibility Service State" />
+        android:text="@string/check_a11y_state" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/phone_user_pwd"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_pwd" />
+
+    <Button
+        android:id="@+id/query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/query_pwd" />
 
     <TextView
-        android:id="@+id/a11y_service_state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:id="@+id/tips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/tips" />
 </LinearLayout>

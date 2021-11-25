@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="description">在一些Android定制系统（比如OriginOS，ColorOS），安装应用需要多个步骤，才能最终成功。此程序通过无障碍服务提供自动完成应用安装的中间步骤，快速成功。</string>
+    <string name="password_empty">SharedPreferences获取的密码为空。</string>
+    <string name="password_copy_failed">复制密码到剪切板失败了。</string>
+    <string name="node_not_found">%1$s节点未找到。</string>
+    <string name="findService">找到 %1$s 并点击开启.</string>
+    <string name="a11y_enable_state">无障碍服务状态%1$b。</string>
+    <string name="check_a11y_state">检查无障碍服务状态</string>
+    <string name="phone_user_pwd">手机用户的密码</string>
+    <string name="save_pwd">保存到SharedPreferences</string>
+    <string name="query_pwd">查询已保存的密码</string>
+    <string name="env_info">运行在Android API %1$d\n制造商 %2$s</string>
+    <string name="tips">请保持此app处于运行状态</string>
+    <string name="continue_button">“继续安装”按钮</string>
+    <string name="ok_button">“确定”按钮</string>
+</resources>

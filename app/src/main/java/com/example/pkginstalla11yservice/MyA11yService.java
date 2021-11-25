@@ -2,8 +2,11 @@ package com.example.pkginstalla11yservice;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -28,10 +31,23 @@ public class MyA11yService extends AccessibilityService {
         switch (event.getEventType()) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
 
-                if (className.contains("AdbInstallActivity")) {
-                    // com.miui.permcenter.install.AdbInstallActivity MIUI
+                if (className.contains("com.android.settings.SubSettings") ||
+                        className.contains("AccessibilitySettingsActivity")) {
+                    // performGlobalAction(GLOBAL_ACTION_BACK);
+
+                } else if (className.contains("AdbInstallActivity")) {
+                    // Xiaomi's MIUI-V12.0.6.0.QJECNXM
+                    // com.miui.permcenter.install.AdbInstallActivity
                     handleMIUI();
-                } else {
+
+                } else if (className.contains("AccountVerifyActivity")) {
+                    // vivo's OriginOS 1.0 PD2106B_A_1.8.5
+                    // com.android.packageinstaller/.PackageInstallerActivity
+                    // com.bbk.account/.activity.AccountVerifyActivity
+                    handlePasswordForOriginOS();
+                } else if (className.contains("PackageInstallerActivity")
+                        && Build.MANUFACTURER.toLowerCase().equals("vivo")) {
+                    handleContinueForOriginOS(); // TODO: Not find continue installation button
 
                 }
 
@@ -47,14 +63,73 @@ public class MyA11yService extends AccessibilityService {
 
     }
 
+    private void handleContinueForOriginOS() {
+        Util.print("handleContinueForOriginOS");
+
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        // A11yServiceHelper.getInstance().dfsNode(root, 0);
+
+        List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
+        if (nodeInfos == null || nodeInfos.size() == 0) {
+            Util.error(getString(R.string.node_not_found, getString(R.string.continue_button)));
+            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.continue_button)), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
+        buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+    }
+
+    private void handlePasswordForOriginOS() {
+        Util.print("handlePasswordForOriginOS");
+
+        String password = Util.getPassword(getApplicationContext());
+        if (password != null && password.isEmpty()) {
+            Util.error(getString(R.string.password_empty));
+            Toast.makeText(getApplicationContext(), R.string.password_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        // A11yServiceHelper.getInstance().dfsNode(root, 0);
+
+        // Find EditText node and set password text
+        List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("com.bbk.account:id/edit_Text");
+        if (nodeInfos == null || nodeInfos.size() == 0) {
+            Util.error(getString(R.string.node_not_found, "EditText"));
+            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, "EditText"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AccessibilityNodeInfo editTextNode = nodeInfos.get(0);
+        Bundle arguments = new Bundle();
+        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, password);
+        editTextNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+
+        // Find Button node and click it.
+        nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
+        if (nodeInfos == null || nodeInfos.size() == 0) {
+            Util.error(getString(R.string.node_not_found, getString(R.string.ok_button)));
+            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.ok_button)), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
+        buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+    }
+
     private void handleMIUI() {
+        Util.print("handleMIUI");
         AccessibilityNodeInfo root = getRootInActiveWindow();
         List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button2");
-        Util.print("nodeInfos size = " + nodeInfos.size());
+        boolean nodeFound = false;
         for (AccessibilityNodeInfo nodeInfo : nodeInfos) {
             if (nodeInfo.isClickable()) {
+                nodeFound = true;
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }
+        }
+        if (!nodeFound) {
+            Util.error(getString(R.string.node_not_found, "Button"));
+            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, "Button"), Toast.LENGTH_SHORT).show();
         }
     }
 }
