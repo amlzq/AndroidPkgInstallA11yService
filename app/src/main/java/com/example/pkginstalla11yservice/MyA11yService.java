@@ -4,15 +4,17 @@ import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MyA11yService extends AccessibilityService {
+
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onServiceConnected() {
@@ -21,6 +23,7 @@ public class MyA11yService extends AccessibilityService {
 
     @Override
     public boolean onUnbind(Intent intent) {
+        mHandler.removeCallbacksAndMessages(null);
         return super.onUnbind(intent);
     }
 
@@ -50,20 +53,49 @@ public class MyA11yService extends AccessibilityService {
                 } else if (className.contains("PackageInstallerActivity")
                         && Build.MANUFACTURER.toLowerCase().equals("vivo")) {
                     // Check that the Continue button finishes rendering every 1 seconds
-                    final Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
+                    mHandler.postDelayed(new Runnable() {
+                        int count = 0;
+
                         @Override
                         public void run() {
+                            count++;
                             boolean result = handleContinueForOriginOS();
-                            if (result) timer.cancel();
+                            if (result || count == 19) {
+                                mHandler.removeCallbacks(this);
+                            } else {
+                                mHandler.postDelayed(this, 1800); // Loop execution
+                            }
                         }
-                    }, 1000);
+                    }, 1800);
 
+                } else if (className.contains("AccountActivity")) {
+                    // OPPO's ColorOS V7.2 PERM00_11_A.05_621b26ad
+                    // com.android.packageinstaller/.OppoPackageInstallerActivity
+                    // com.coloros.safecenter/.verification.login.AccountActivity
+                    handlePasswordForColorOS();
+                } else if (className.contains("OppoPackageInstallerActivity")) {
+                    // Check that the Installation button finishes rendering every 1 seconds
+                    mHandler.postDelayed(new Runnable() {
+                        int count = 0;
+
+                        @Override
+                        public void run() {
+                            count++;
+                            boolean result = handleInstallationForColorOS(); // TODO: Not find installation button
+                            if (result || count == 19) {
+                                mHandler.removeCallbacks(this);
+                            } else {
+                                mHandler.postDelayed(this, 1800); // Loop execution
+                            }
+                        }
+                    }, 1800);
                 }
 
                 break;
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+                break;
             case AccessibilityEvent.TYPE_VIEW_CLICKED:
-
+                mHandler.removeCallbacksAndMessages(null);
                 break;
         }
     }
@@ -71,6 +103,55 @@ public class MyA11yService extends AccessibilityService {
     @Override
     public void onInterrupt() {
 
+    }
+
+    private boolean handleInstallationForColorOS() {
+        Util.print("handleInstallationForColorOS");
+
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
+        if (nodeInfos == null || nodeInfos.size() == 0) {
+            Util.error(getString(R.string.node_not_found, getString(R.string.installation_button)));
+            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.installation_button)), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
+        buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        buttonNode.recycle();
+        return true;
+    }
+
+    private void handlePasswordForColorOS() {
+        Util.print("handlePasswordForColorOS");
+
+        String password = Util.getPassword(getApplicationContext());
+        if (password != null && password.isEmpty()) {
+            Util.error(getString(R.string.password_empty));
+            Toast.makeText(getApplicationContext(), R.string.password_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+
+        // Find EditText node
+        List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("com.coloros.safecenter:id/et_login_passwd_edit");
+        for (AccessibilityNodeInfo nodeInfo : nodeInfos) {
+            if (nodeInfo.isEditable()) {
+                Bundle arguments = new Bundle();
+                arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, password);
+                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+                nodeInfo.recycle();
+            }
+        }
+
+        // Find Button node
+        nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
+        for (AccessibilityNodeInfo nodeInfo : nodeInfos) {
+            if (nodeInfo.isClickable()) {
+                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                nodeInfo.recycle();
+            }
+        }
     }
 
     private boolean handleContinueForOriginOS() {
@@ -87,6 +168,7 @@ public class MyA11yService extends AccessibilityService {
         }
         AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
         buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        buttonNode.recycle();
         return true;
     }
 
@@ -115,6 +197,7 @@ public class MyA11yService extends AccessibilityService {
         Bundle arguments = new Bundle();
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, password);
         editTextNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+        editTextNode.recycle();
 
         // Find Button node and click it.
         nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
@@ -125,6 +208,7 @@ public class MyA11yService extends AccessibilityService {
         }
         AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
         buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        buttonNode.recycle();
     }
 
     private void handleMIUI() {
@@ -136,6 +220,7 @@ public class MyA11yService extends AccessibilityService {
             if (nodeInfo.isClickable()) {
                 nodeFound = true;
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                nodeInfo.recycle();
             }
         }
         if (!nodeFound) {

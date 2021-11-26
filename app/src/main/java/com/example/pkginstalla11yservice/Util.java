@@ -12,14 +12,12 @@ public class Util {
 
     public static void print(String msg) {
         if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == "debug") {
-            Log.d("", msg); // Tag can be customized
+            Log.d("DEBUG", msg);
         }
     }
 
     public static void error(String msg) {
-        if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == "debug") {
-            Log.e("", msg); // Tag can be customized
-        }
+        Log.e("ERROR", msg);
     }
 
     static final String PREFS_NAME = "phone_user";

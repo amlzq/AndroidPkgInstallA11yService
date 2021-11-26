@@ -14,4 +14,5 @@
     <string name="tips">Please keep this app running</string>
     <string name="continue_button">"Continue installation" Button</string>
     <string name="ok_button">"OK" Button</string>
+    <string name="installation_button">"Installation" Button</string>
 </resources>

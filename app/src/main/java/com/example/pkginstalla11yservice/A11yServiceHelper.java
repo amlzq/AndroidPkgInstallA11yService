@@ -87,15 +87,16 @@ public class A11yServiceHelper {
         return null;
     }
 
-    public void dfsNode(AccessibilityNodeInfo node, int num) {
+    public void dfsNode(AccessibilityNodeInfo nodeInfo, int num) {
+        if (nodeInfo == null) return;
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < num; i++) {
             builder.append("__ "); // Indentation between parent and child nodes
         }
         builder.append(num);
-        Log.i("dfsNode", "AccessibilityNodeInfo = " + builder.toString() + node.toString());
-        for (int i = 0; i < node.getChildCount(); i++) { // Traverse child nodes
-            dfsNode(node.getChild(i), num + 1);
+        Log.i("dfsNode", "AccessibilityNodeInfo = " + builder.toString() + nodeInfo.toString());
+        for (int i = 0; i < nodeInfo.getChildCount(); i++) { // Traverse child nodes
+            dfsNode(nodeInfo.getChild(i), num + 1);
         }
     }
 

@@ -14,4 +14,5 @@
     <string name="tips">请保持此app处于运行状态</string>
     <string name="continue_button">“继续安装”按钮</string>
     <string name="ok_button">“确定”按钮</string>
+    <string name="installation_button">"安装" Button</string>
 </resources>
