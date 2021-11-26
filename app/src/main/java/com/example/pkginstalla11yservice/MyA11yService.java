@@ -9,6 +9,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyA11yService extends AccessibilityService {
 
@@ -41,13 +43,21 @@ public class MyA11yService extends AccessibilityService {
                     handleMIUI();
 
                 } else if (className.contains("AccountVerifyActivity")) {
-                    // vivo's OriginOS 1.0 PD2106B_A_1.8.5
+                    // vivo's OriginOS1.0 PD2106B_A_1.8.5
                     // com.android.packageinstaller/.PackageInstallerActivity
                     // com.bbk.account/.activity.AccountVerifyActivity
                     handlePasswordForOriginOS();
                 } else if (className.contains("PackageInstallerActivity")
                         && Build.MANUFACTURER.toLowerCase().equals("vivo")) {
-                    handleContinueForOriginOS(); // TODO: Not find continue installation button
+                    // Check that the Continue button finishes rendering every 1 seconds
+                    final Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            boolean result = handleContinueForOriginOS();
+                            if (result) timer.cancel();
+                        }
+                    }, 1000);
 
                 }
 
@@ -63,7 +73,7 @@ public class MyA11yService extends AccessibilityService {
 
     }
 
-    private void handleContinueForOriginOS() {
+    private boolean handleContinueForOriginOS() {
         Util.print("handleContinueForOriginOS");
 
         AccessibilityNodeInfo root = getRootInActiveWindow();
@@ -73,10 +83,11 @@ public class MyA11yService extends AccessibilityService {
         if (nodeInfos == null || nodeInfos.size() == 0) {
             Util.error(getString(R.string.node_not_found, getString(R.string.continue_button)));
             Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.continue_button)), Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
         AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
         buttonNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        return true;
     }
 
     private void handlePasswordForOriginOS() {
