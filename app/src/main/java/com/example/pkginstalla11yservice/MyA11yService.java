@@ -29,13 +29,11 @@ public class MyA11yService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        Util.print("onAccessibilityEvent = " + event.toString());
-
-        String className = event.getClassName() == null ? "" : event.getClassName().toString();
+        Util.debug("onAccessibilityEvent = " + event.toString());
 
         switch (event.getEventType()) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-
+                String className = event.getClassName() == null ? "" : event.getClassName().toString();
                 if (className.contains("com.android.settings.SubSettings") ||
                         className.contains("AccessibilitySettingsActivity")) {
                     // performGlobalAction(GLOBAL_ACTION_BACK);
@@ -43,27 +41,34 @@ public class MyA11yService extends AccessibilityService {
                 } else if (className.contains("AdbInstallActivity")) {
                     // Xiaomi's MIUI-V12.0.6.0.QJECNXM
                     // com.miui.permcenter.install.AdbInstallActivity
+                    Util.info("Hit page " + className);
                     handleMIUI();
 
                 } else if (className.contains("AccountVerifyActivity")) {
                     // vivo's OriginOS1.0 PD2106B_A_1.8.5
                     // com.android.packageinstaller/.PackageInstallerActivity
                     // com.bbk.account/.activity.AccountVerifyActivity
+                    Util.info("Hit page " + className);
                     handlePasswordForOriginOS();
                 } else if (className.contains("PackageInstallerActivity")
                         && Build.MANUFACTURER.toLowerCase().equals("vivo")) {
                     // Check that the Continue button finishes rendering every 1 seconds
+                    Util.info("Hit page " + className);
                     mHandler.postDelayed(new Runnable() {
                         int count = 0;
 
                         @Override
                         public void run() {
                             count++;
-                            boolean result = handleContinueForOriginOS();
-                            if (result || count == 19) {
-                                mHandler.removeCallbacks(this);
-                            } else {
+                            Util.debug("Loop count " + count);
+                            boolean successful = handleContinueForOriginOS();
+                            if (successful) {
+                                mHandler.removeCallbacks(this); // Loop cancel
+                            } else if (count < 19) {
                                 mHandler.postDelayed(this, 1800); // Loop execution
+                            } else {
+                                mHandler.removeCallbacks(this);
+                                Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.continue_button)), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }, 1800);
@@ -72,47 +77,51 @@ public class MyA11yService extends AccessibilityService {
                     // OPPO's ColorOS V7.2 PERM00_11_A.05_621b26ad
                     // com.android.packageinstaller/.OppoPackageInstallerActivity
                     // com.coloros.safecenter/.verification.login.AccountActivity
+                    // com.coloros.safecenter.verification.login.h
+                    Util.info("Hit page " + className);
                     handlePasswordForColorOS();
                 } else if (className.contains("OppoPackageInstallerActivity")) {
                     // Check that the Installation button finishes rendering every 1 seconds
+                    Util.info("Hit page " + className);
                     mHandler.postDelayed(new Runnable() {
                         int count = 0;
 
                         @Override
                         public void run() {
                             count++;
-                            boolean result = handleInstallationForColorOS(); // TODO: Not find installation button
-                            if (result || count == 19) {
-                                mHandler.removeCallbacks(this);
-                            } else {
+                            Util.debug("Loop count " + count);
+                            boolean successful = handleInstallationForColorOS(); // TODO: Not find installation button
+                            if (successful) {
+                                mHandler.removeCallbacks(this); // Loop cancel
+                            } else if (count < 19) {
                                 mHandler.postDelayed(this, 1800); // Loop execution
+                            } else {
+                                mHandler.removeCallbacks(this);
+                                Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.installation_button)), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }, 1800);
                 }
 
                 break;
-            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                break;
-            case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                mHandler.removeCallbacksAndMessages(null);
-                break;
+//            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+//                break;
+//            case AccessibilityEvent.TYPE_VIEW_CLICKED:
+//                break;
         }
     }
 
     @Override
     public void onInterrupt() {
-
     }
 
     private boolean handleInstallationForColorOS() {
-        Util.print("handleInstallationForColorOS");
+        Util.debug("handleInstallationForColorOS");
 
         AccessibilityNodeInfo root = getRootInActiveWindow();
         List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
         if (nodeInfos == null || nodeInfos.size() == 0) {
             Util.error(getString(R.string.node_not_found, getString(R.string.installation_button)));
-            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.installation_button)), Toast.LENGTH_SHORT).show();
             return false;
         }
         AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
@@ -122,7 +131,7 @@ public class MyA11yService extends AccessibilityService {
     }
 
     private void handlePasswordForColorOS() {
-        Util.print("handlePasswordForColorOS");
+        Util.debug("handlePasswordForColorOS");
 
         String password = Util.getPassword(getApplicationContext());
         if (password != null && password.isEmpty()) {
@@ -155,7 +164,7 @@ public class MyA11yService extends AccessibilityService {
     }
 
     private boolean handleContinueForOriginOS() {
-        Util.print("handleContinueForOriginOS");
+        Util.debug("handleContinueForOriginOS");
 
         AccessibilityNodeInfo root = getRootInActiveWindow();
         // A11yServiceHelper.getInstance().dfsNode(root, 0);
@@ -163,7 +172,6 @@ public class MyA11yService extends AccessibilityService {
         List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button1");
         if (nodeInfos == null || nodeInfos.size() == 0) {
             Util.error(getString(R.string.node_not_found, getString(R.string.continue_button)));
-            Toast.makeText(getApplicationContext(), getString(R.string.node_not_found, getString(R.string.continue_button)), Toast.LENGTH_SHORT).show();
             return false;
         }
         AccessibilityNodeInfo buttonNode = nodeInfos.get(0);
@@ -173,7 +181,7 @@ public class MyA11yService extends AccessibilityService {
     }
 
     private void handlePasswordForOriginOS() {
-        Util.print("handlePasswordForOriginOS");
+        Util.debug("handlePasswordForOriginOS");
 
         String password = Util.getPassword(getApplicationContext());
         if (password != null && password.isEmpty()) {
@@ -212,7 +220,7 @@ public class MyA11yService extends AccessibilityService {
     }
 
     private void handleMIUI() {
-        Util.print("handleMIUI");
+        Util.debug("handleMIUI");
         AccessibilityNodeInfo root = getRootInActiveWindow();
         List<AccessibilityNodeInfo> nodeInfos = root.findAccessibilityNodeInfosByViewId("android:id/button2");
         boolean nodeFound = false;

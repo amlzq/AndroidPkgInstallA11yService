@@ -10,10 +10,18 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class Util {
 
-    public static void print(String msg) {
+    public static void info(String msg) {
+        Log.i("INFO", msg);
+    }
+
+    public static void debug(String msg) {
         if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == "debug") {
             Log.d("DEBUG", msg);
         }
+    }
+
+    public static void warn(String msg) {
+        Log.w("WARN", msg);
     }
 
     public static void error(String msg) {

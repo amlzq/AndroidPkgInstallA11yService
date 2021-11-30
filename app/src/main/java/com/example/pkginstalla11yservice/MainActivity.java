@@ -108,13 +108,13 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onResume() {
-        Util.print(this.toString() + " onResume");
+        Util.debug(this.toString() + " onResume");
         super.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        Util.print(this.toString() + " onDestroy");
+        Util.debug(this.toString() + " onDestroy");
         super.onDestroy();
     }
 

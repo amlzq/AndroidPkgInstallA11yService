@@ -93,7 +93,7 @@ public class A11yServiceHelper {
         for (int i = 0; i < num; i++) {
             builder.append("__ "); // Indentation between parent and child nodes
         }
-        builder.append(num);
+        builder.append(num).append("#");
         Log.i("dfsNode", "AccessibilityNodeInfo = " + builder.toString() + nodeInfo.toString());
         for (int i = 0; i < nodeInfo.getChildCount(); i++) { // Traverse child nodes
             dfsNode(nodeInfo.getChild(i), num + 1);

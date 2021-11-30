@@ -3,7 +3,7 @@
     <string name="description">在一些Android定制系统（比如OriginOS，ColorOS），安装应用需要多个步骤，才能最终成功。此程序通过无障碍服务提供自动完成应用安装的中间步骤，快速成功。</string>
     <string name="password_empty">SharedPreferences获取的密码为空。</string>
     <string name="password_copy_failed">复制密码到剪切板失败了。</string>
-    <string name="node_not_found">%1$s节点未找到。</string>
+    <string name="node_not_found">%1$s节点未找到，请手动点击。</string>
     <string name="findService">找到 %1$s 并点击开启.</string>
     <string name="a11y_enable_state">无障碍服务状态%1$b。</string>
     <string name="check_a11y_state">检查无障碍服务状态</string>
