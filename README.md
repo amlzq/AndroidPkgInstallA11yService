@@ -1,3 +1,7 @@
+### You can run under these versions of the system
+- [x] MIUI V12.0.6.0(QJECNXM)
+- [x] OriginOS1.0 PD2106B_A_1.8.5
+- [x] ColorOS V7.2 PERM00_11_A.05_621b26ad
 
 - Command
 ```
